@@ -1,0 +1,145 @@
+/* ClayMart's header controls (nav.js): the aisles, the search well, the account popover / sheet, the empty shelf.
+   Made of the page's own clay (style.css tokens: --clay-*, --cream-*, --coral-*, --font); nothing here redefines them.
+
+   1 the pill and the aisles   2 search   3 the account   4 the empty shelf   5 narrow screens: the chip row
+   6 a phone: full-width search, the account as a bottom sheet   7 reduced motion */
+
+/* ---- 1. the pill and the aisles ---- */
+.site-pill { position: relative; }
+/* the aisles are always reachable (style.css hid them under 1180 px): in the pill from 980 px, as chips below that.
+   Every header control is at least 44 px tall, for fingers on tablets and phones */
+.site .links { display: flex; }
+.site .links a { display: inline-flex; align-items: center; min-height: 44px; }
+.site .brand { min-height: 44px; min-width: 44px; justify-content: center; }
+.site .links a { position: relative; transition: color var(--dur-fast), box-shadow var(--dur), background-color var(--dur); touch-action: manipulation; }
+.site .links a:active { box-shadow: var(--clay-pressed); }
+.site .links a:focus-visible { outline-offset: 2px; }
+.site .brand:focus-visible { outline-offset: 4px; }
+.nav-search-btn[aria-expanded="true"], .nav-account-btn[aria-expanded="true"] { box-shadow: var(--clay-pressed); background: var(--cream-200); }
+
+/* ---- 2. search: a clay well pressed into the pill, from after the logo to the account button ---- */
+.nav-search { position: absolute; z-index: 2; top: 7px; bottom: 7px; left: var(--search-left, 220px); right: 130px; display: flex; align-items: center; gap: 10px;
+  padding: 0 4px 0 16px; border-radius: var(--radius-pill); background: var(--cream-200); box-shadow: var(--clay-well); transform-origin: 100% 50%; }
+.nav-search[hidden] { display: none; }
+.nav-search-ico { flex: none; width: 20px; height: 20px; fill: none; stroke: var(--brown-600); stroke-width: 2; stroke-linecap: round; }
+#nav-q { flex: 1; min-width: 0; height: 100%; border: 0; padding: 0; background: none; outline: none; font: 500 16px var(--font); color: var(--text); }
+#nav-q::placeholder { color: var(--text-muted); opacity: .8; }
+#nav-q::-webkit-search-cancel-button { display: none; }
+.nav-search:focus-within { box-shadow: var(--clay-well), 0 0 0 3px rgb(var(--shade) / .18); }
+.nav-count { flex: none; font: 600 12.5px var(--font); font-variant-numeric: tabular-nums; color: var(--text-muted); white-space: nowrap; }
+.nav-count:empty { display: none; }
+.nav-kbd { flex: none; padding: 3px 8px; border-radius: 8px; font: 600 11.5px var(--font); color: var(--text-muted); background: var(--cream-100); box-shadow: var(--clay-s); }
+.nav-x { flex: none; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%;
+  background: linear-gradient(180deg, var(--surface-hi), var(--cream-200)); box-shadow: var(--clay-s); transition: transform var(--dur) var(--squash), box-shadow var(--dur); }
+.nav-x svg { width: 15px; height: 15px; fill: none; stroke: var(--brown-600); stroke-width: 2.4; stroke-linecap: round; }
+.nav-x:active { transform: scale(.94); box-shadow: var(--clay-pressed); }
+/* while the field is open the aisles under it are out of reach */
+.nav-searching .site .links { visibility: hidden; }
+
+/* ---- 3. the account: a clay popover under its button ---- */
+.nav-account { position: absolute; z-index: 5; top: calc(100% + 12px); right: 66px; width: 360px; max-height: min(70vh, 560px); overflow: auto; overscroll-behavior: contain;
+  padding: 16px 16px 14px; border-radius: var(--radius-lg); background: linear-gradient(180deg, var(--surface-hi), var(--surface)); box-shadow: var(--clay-l);
+  transform-origin: 82% 0; scrollbar-width: thin; }
+.nav-account[hidden] { display: none; }
+.na-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.na-head h2 { margin: 0; font-size: 20px; font-weight: 700; color: var(--heading); text-shadow: var(--emboss); }
+.na-grip { display: none; }
+.na-note { margin: 2px 0 12px; font-size: 13px; color: var(--text-muted); }
+.na-orders { list-style: none; display: grid; gap: 10px; margin: 0; padding: 0; }
+.ao { padding: 11px 12px 10px; border-radius: 20px; background: linear-gradient(180deg, var(--cream-0), var(--cream-100)); box-shadow: var(--clay-s); }
+.ao-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12px; color: var(--text-muted); }
+.ao-no { font-weight: 700; letter-spacing: .06em; color: var(--accent-text); }
+.ao-what { margin: 4px 0 9px; font-size: 14px; line-height: 1.35; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ao-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ao-sum { margin: 0; display: flex; flex-direction: column; font-size: 12.5px; line-height: 1.3; color: var(--text-muted); }
+.ao-total { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--brown-700); text-shadow: var(--emboss); }
+.ao-again { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 16px 0 13px; border-radius: var(--radius-pill);
+  font-size: 14px; font-weight: 700; color: var(--on-accent); text-shadow: var(--emboss-on-colour);
+  background: linear-gradient(180deg, var(--coral-400), var(--accent) 55%, var(--coral-600)); box-shadow: var(--clay-m);
+  transition: transform var(--dur) var(--squash), box-shadow var(--dur); touch-action: manipulation; }
+.ao-again svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 0 rgb(160 74 50 / .5)); }
+.ao-again:active { transform: scale(.95); box-shadow: var(--clay-pressed); }
+.ao-again:disabled { filter: grayscale(.6); opacity: .6; cursor: default; }
+.na-empty { margin: 4px 0 6px; padding: 16px 14px; border-radius: 18px; font-size: 13.5px; line-height: 1.4; text-align: center; color: var(--text-muted);
+  background: var(--cream-200); box-shadow: var(--clay-well); }
+.nav-account[data-empty="false"] .na-empty, .nav-account[data-empty="true"] .na-orders { display: none; }
+.na-clear { display: block; min-height: 44px; margin: 10px auto 0; padding: 0 16px; border-radius: var(--radius-pill); font-size: 13px; font-weight: 600; color: #B4463A; background: none;
+  transition: box-shadow var(--dur); }
+.na-clear:hover:not(:disabled) { box-shadow: var(--clay-s); }
+.na-clear:active:not(:disabled) { box-shadow: var(--clay-pressed); }
+.na-clear:disabled { color: var(--text-muted); opacity: .55; cursor: default; }
+/* the stage (flying products, the pile, the basket's front, the magnet) draws over the page at z 40; while the account is
+   open the header rises above it, so the popover / sheet is never covered by the pile */
+html.nav-account-open .site { z-index: 41; }
+.nav-scrim { position: fixed; inset: 0; z-index: 4; background: rgb(var(--shade) / .28); }
+.nav-scrim[hidden] { display: none; }
+
+/* ---- 4. the empty shelf: a clay card where the products were ---- */
+.nav-empty { display: grid; justify-items: center; gap: 4px; padding: 30px 20px 26px; border-radius: var(--radius-lg); text-align: center;
+  background: linear-gradient(180deg, var(--surface-hi), var(--surface)); box-shadow: var(--clay-l); }
+.nav-empty[hidden] { display: none; }
+.ne-ico { width: 54px; height: 54px; margin-bottom: 6px; fill: none; stroke: var(--coral-500); stroke-width: 6; stroke-linecap: round; filter: drop-shadow(0 3px 2px rgb(var(--shade) / .3)); }
+.ne-title { margin: 0; font-size: 21px; font-weight: 700; color: var(--heading); text-shadow: var(--emboss); overflow-wrap: anywhere; }
+.ne-title[data-kind="query"] .ne-a, .ne-title[data-kind="aisle"] .ne-q { display: none; }
+.ne-where { font-weight: 500; color: var(--text-muted); }
+.ne-text { margin: 0 0 12px; font-size: 14px; color: var(--text-muted); }
+.ne-clear { height: 46px; padding: 0 22px; border-radius: var(--radius-pill); font-size: 15px; font-weight: 700; color: #8A532E; text-shadow: var(--emboss);
+  background: radial-gradient(80% 80% at 35% 30%, #F9E5AA, var(--butter-300) 65%, var(--butter-400)); box-shadow: var(--clay-m); transition: transform var(--dur) var(--squash), box-shadow var(--dur); }
+.ne-clear:active { transform: scale(.96); box-shadow: var(--clay-pressed); }
+
+/* ---- 5. narrow screens: the aisles leave the pill and become a row of clay chips under it ---- */
+/* a phone on its side (wide but short): the chips would take a third of the screen, so the aisles stay in the pill
+   and the wordmark steps aside (the mark keeps the brand; the link keeps its name for screen readers) */
+@media (min-width: 761px) and (max-width: 979px) and (max-height: 540px) {
+  .site .wordmark { display: none; }
+  .site .site-pill { gap: var(--space-4); }
+  .site .links { margin-left: 0; gap: 2px; }
+  .site .links a { padding: 0 13px; font-size: 14.5px; }
+}
+@media (max-width: 979px) and (min-height: 541px), (max-width: 760px) {
+  :root { --header-h: 140px; }
+  .site .links { position: absolute; z-index: 1; top: calc(100% + 6px); left: -6px; right: -6px; display: flex; gap: 8px; margin: 0; padding: 6px 6px 12px;
+    overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .site .links::-webkit-scrollbar { display: none; }
+  .site .links a { flex: none; scroll-snap-align: start; padding: 0 18px; font-size: 15px; font-weight: 600; color: var(--text-muted);
+    background: linear-gradient(180deg, var(--surface-hi), var(--surface)); box-shadow: var(--clay-s); }
+  .site .links a:hover { box-shadow: var(--clay-s); color: var(--text); }
+  .site .links a[aria-current] { color: var(--brown-700); background: var(--cream-200); box-shadow: var(--clay-pressed); }
+  .nav-searching .site .links { visibility: visible; }   /* the chips sit under the pill: search narrows within an aisle */
+}
+
+/* ---- 6. a phone ---- */
+@media (max-width: 760px) {
+  :root { --header-h: 124px; }
+  .site .links { padding: 6px 6px 10px; }
+  .site .links a { padding: 0 16px; font-size: 14.5px; }
+  .site .nav-account-btn { display: grid; }
+  .site .icon-btn { width: 44px; height: 44px; }
+  .site .site-pill { gap: var(--space-2); }
+  .site .tools { gap: 8px; }
+  /* search covers the whole pill */
+  .nav-search { left: 6px; right: 6px; top: 6px; bottom: 6px; padding-left: 14px; transform-origin: 50% 50%; }
+  .nav-kbd { display: none; }
+  .nav-searching .site .tools { visibility: hidden; }   /* the field covers the whole pill; nothing peeks out */
+  /* the account rises from the bottom as a sheet */
+  .nav-account { position: fixed; top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: min(82dvh, 640px); padding: 8px 18px calc(18px + env(safe-area-inset-bottom));
+    border-radius: 30px 30px 0 0; box-shadow: 0 -14px 30px -12px rgb(var(--shade) / .4), inset 6px 6px 12px rgb(var(--light) / .75); transform-origin: 50% 100%; }
+  .na-head { position: relative; padding-top: 16px; touch-action: none; cursor: grab; }
+  .na-grip { display: block; position: absolute; top: 2px; left: 50%; width: 44px; height: 6px; margin-left: -22px; border-radius: 3px; background: var(--cream-400); box-shadow: var(--clay-well); }
+  .na-head h2 { font-size: 22px; }
+}
+
+/* the smallest phones: the mark alone carries the brand */
+@media (max-width: 359px) {
+  .site .wordmark { display: none; }
+  .site .links { gap: 6px; }
+  .site .links a { padding: 0 12px; font-size: 14px; }   /* all four chips fit at 320 px; the row still scrolls if text is enlarged */
+}
+@media (min-width: 360px) and (max-width: 400px) {
+  .site .wordmark { font-size: 17px; letter-spacing: .03em; }
+}
+
+/* ---- 7. reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .site .links a, .nav-x, .ao-again, .ne-clear, .na-clear { transition: none; }
+}

@@ -1,0 +1,466 @@
+/* ClayMart — the magnetic market. The first version's shop (a shelf of products on the left, a basket panel on the
+   right; on a phone the basket docks below and you throw downward), made of clay: every piece of the design is soft
+   clay; only the groceries are photoreal.
+
+   1 tokens: primitive → semantic → component     2 the page and the header     3 the section's words
+   4 the shelf and its cards     5 the basket panel     6 the tray: the clay basket and its magnet
+   7 the list, the sum, checkout     8 the stage: flying and piled products     9 the receipt     10 the touch circle
+   11 screens     12 reduced motion */
+
+/* ---- 1. TOKENS ---- */
+:root {
+  /* primitive */
+  --cream-0: #FFFBF4; --cream-50: #FDF8EF; --cream-100: #FAF2E3; --cream-200: #F7EBD3; --cream-300: #F0E1C9; --cream-400: #E6D3B6;
+  --brown-600: #8A4A3E; --brown-700: #763C31; --brown-800: #642F26;
+  --coral-300: #F8BEA6; --coral-400: #F3AE92; --coral-500: #EE9F81; --coral-600: #E08A6C; --coral-700: #C25F4A;
+  --butter-300: #F3D78D; --butter-400: #E8C371; --mint-100: #E5F2DD; --mint-500: #8DBF9C; --olive-600: #5E8A4A;
+  --shade: 150 92 66;                 /* the warm brown every clay shadow is made of, as rgb numbers */
+  --light: 255 255 255;
+  --font: 'Fredoka', 'Baloo 2', ui-rounded, system-ui, sans-serif;
+
+  /* semantic */
+  --bg: var(--cream-200);
+  --surface: var(--cream-100);
+  --surface-hi: var(--cream-50);
+  --text: var(--brown-800);
+  --text-muted: #8B6556;
+  --heading: var(--brown-600);
+  --accent: var(--coral-500);
+  --accent-text: var(--coral-700);
+  --on-accent: #FFF4E8;
+  --focus: var(--brown-700);
+  --success: var(--olive-600);
+
+  /* clay: a big soft shadow under the lump, light pressed into its top left, shade pressed into its bottom right */
+  --clay-l: 0 18px 30px -12px rgb(var(--shade) / .38), 0 4px 8px rgb(var(--shade) / .08),
+            inset 6px 6px 12px rgb(var(--light) / .75), inset -8px -8px 16px rgb(var(--shade) / .18);
+  --clay-m: 0 12px 22px -10px rgb(var(--shade) / .4), 0 3px 5px rgb(var(--shade) / .08),
+            inset 4px 4px 9px rgb(var(--light) / .7), inset -6px -6px 12px rgb(var(--shade) / .2);
+  --clay-s: 0 7px 12px -5px rgb(var(--shade) / .42),
+            inset 3px 3px 6px rgb(var(--light) / .6), inset -4px -4px 8px rgb(var(--shade) / .22);
+  /* pressed: the outer shadow tucks in, the inner shade deepens */
+  --clay-pressed: 0 3px 6px -3px rgb(var(--shade) / .4), inset 4px 5px 10px rgb(var(--shade) / .28), inset -3px -3px 7px rgb(var(--light) / .45);
+  /* a well pressed INTO the clay (tiles, wells, bars) */
+  --clay-well: inset 5px 5px 10px rgb(var(--shade) / .16), inset -5px -5px 10px rgb(var(--light) / .8);
+  --clay-tile: inset 5px 5px 11px rgb(var(--light) / .6), inset -7px -8px 14px rgb(var(--shade) / .2), 0 3px 6px rgb(var(--shade) / .1);
+  /* embossed words: a light lip on top, a soft dark under */
+  --emboss: 0 -1px 0 rgb(var(--light) / .75), 0 1.5px 1.5px rgb(var(--shade) / .3);
+  --emboss-on-colour: 0 -1px 0 rgb(var(--light) / .35), 0 1.5px 0 rgb(160 74 50 / .55);
+
+  --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-8: 32px; --space-10: 40px;
+  --radius-lg: 28px; --radius-xl: 36px; --radius-pill: 999px;
+  --dur-fast: 140ms; --dur: 220ms; --squash: cubic-bezier(.34, 1.56, .64, 1);
+
+  /* component */
+  --header-h: 92px;
+  --card-art-h: 150px;
+  --art-k: 1.12;                      /* how big a product stands on its card, against its size as an object */
+  --shop-max: 1320px;                /* the content's width; wider screens get margins (and a bigger basket) */
+  --basket-w: 384px;
+  --tray-reserve: 490px;             /* the panel's height that is not basket art: header, totals, Checkout, a line */
+  --strip-w: 236px;                  /* the basket strip of a phone on its side */
+  /* the layers, bottom to top: the basket panel, the header, the open basket sheet (and its scrim), the stage where
+     products fly, the header lifted over the stage while its account popover is open (nav.css) */
+  --z-basket: 20; --z-header: 30; --z-scrim: 34; --z-sheet: 35; --z-stage: 40; --z-header-over-stage: 41; --z-touch: 50; --z-skip: 100;
+  --odo-size: 30px;
+}
+
+/* ---- 2. the page and the header ---- */
+* { box-sizing: border-box; }
+html { background: var(--bg); -webkit-text-size-adjust: 100%; }
+body { margin: 0; min-height: 100dvh; font-family: var(--font); color: var(--text); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+  background: radial-gradient(900px 520px at 8% -6%, #FCF2E0, transparent 70%), radial-gradient(700px 520px at 100% 110%, rgb(246 190 160 / .25), transparent 70%), var(--bg);
+  overflow-x: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; }
+a { color: inherit; }
+svg { display: block; }
+img { -webkit-user-drag: none; user-select: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.skip { position: absolute; left: var(--space-4); top: -60px; z-index: var(--z-skip); padding: 12px 16px; line-height: 20px; border-radius: var(--radius-pill); background: var(--brown-700); color: var(--cream-50); font-weight: 600; text-decoration: none; }
+.skip:focus { top: var(--space-3); }
+
+.site { position: sticky; top: 0; z-index: var(--z-header); height: var(--header-h); padding: 14px max(var(--space-10), calc((100vw - var(--shop-max)) / 2 + var(--space-10))) 0;
+  background: linear-gradient(180deg, var(--bg) 70%, rgb(247 235 211 / 0)); }
+.site-pill { display: flex; align-items: center; gap: var(--space-8); height: 66px; padding: 0 12px 0 16px; border-radius: var(--radius-pill);
+  background: linear-gradient(180deg, var(--surface-hi), var(--surface)); box-shadow: var(--clay-l); }
+.brand { display: flex; align-items: center; gap: 9px; text-decoration: none; border-radius: var(--radius-pill); }
+.mark { width: 40px; height: 40px; filter: drop-shadow(0 3px 3px rgb(var(--shade) / .28)); }
+.wordmark { font-weight: 700; font-size: 22px; letter-spacing: .04em; color: var(--brown-700); text-shadow: var(--emboss); }
+.links { display: flex; gap: 6px; margin-left: var(--space-2); }
+.links a { padding: 9px 16px; border-radius: var(--radius-pill); font-size: 15px; font-weight: 500; color: var(--text-muted); text-decoration: none; transition: color var(--dur-fast), box-shadow var(--dur); }
+.links a:hover { color: var(--text); box-shadow: var(--clay-s); }
+.links a[aria-current] { color: var(--brown-700); font-weight: 600; background: var(--cream-200); box-shadow: var(--clay-well); }
+.tools { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.icon-btn, .bag-btn { position: relative; display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border-radius: 50%;
+  background: linear-gradient(180deg, var(--surface-hi), var(--cream-200)); box-shadow: var(--clay-s); transition: transform var(--dur) var(--squash), box-shadow var(--dur); }
+.icon-btn:active, .bag-btn:active { transform: scale(.96); box-shadow: var(--clay-pressed); }
+.icon-btn svg { width: 21px; height: 21px; fill: none; stroke: var(--brown-600); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.bag-btn { width: 52px; height: 52px; background: radial-gradient(80% 80% at 35% 30%, #F9E5AA, var(--butter-300) 65%, var(--butter-400)); box-shadow: var(--clay-m); }
+.bag-btn svg { width: 26px; height: 26px; fill: none; stroke: #8A532E; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.bag-count { position: absolute; right: -5px; top: -5px; min-width: 24px; height: 24px; padding: 0 7px; border-radius: var(--radius-pill); display: grid; place-items: center;
+  font: 700 12.5px/1 var(--font); font-variant-numeric: tabular-nums; color: var(--on-accent); background: linear-gradient(180deg, var(--coral-400), var(--coral-600));
+  box-shadow: var(--clay-s); text-shadow: var(--emboss-on-colour); }
+.bag-count.is-zero { background: linear-gradient(180deg, var(--cream-300), var(--cream-400)); color: var(--text-muted); text-shadow: var(--emboss); }
+
+/* ---- 3. the section's words ---- */
+.shop { position: relative; max-width: var(--shop-max); margin: 0 auto; padding: 0 var(--space-10); }
+.pantry { margin-right: calc(var(--basket-w) + 36px); padding: 18px 0 var(--space-8); }
+.intro { display: grid; grid-template-columns: 1fr auto; align-items: end; column-gap: var(--space-8); margin-bottom: 22px; }
+.eyebrow { grid-column: 1 / -1; justify-self: start; margin: 0 0 12px; padding: 6px 14px; border-radius: var(--radius-pill); background: var(--cream-100); box-shadow: var(--clay-s);
+  font-size: 12.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-text); text-shadow: var(--emboss); }
+h1 { margin: 0; font: 700 clamp(36px, 3.8vw, 52px)/1.0 var(--font); letter-spacing: .005em; }
+h1 span { display: block; }
+.t1 { color: var(--heading); text-shadow: 0 -1.5px 0 rgb(255 226 210 / .8), 0 3px 0 var(--brown-800), 0 4px 3px rgb(var(--shade) / .35), 0 12px 16px rgb(var(--shade) / .28); }
+.t2 { margin-top: 6px; color: var(--coral-500); text-shadow: 0 -1.5px 0 rgb(255 240 230 / .8), 0 3px 0 var(--coral-700), 0 4px 3px rgb(var(--shade) / .3), 0 12px 16px rgb(var(--shade) / .25); }
+.lede { margin: 0; max-width: 300px; font-size: 15px; line-height: 1.5; color: var(--text-muted); text-wrap: pretty; }
+
+/* ---- 4. the shelf and its cards: puffy clay cards, each with a tinted clay tile the product stands on ---- */
+.shelf { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; outline: none; }
+.card article { position: relative; height: 100%; display: flex; flex-direction: column; padding: 10px; border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--surface-hi), var(--surface)); box-shadow: var(--clay-l); }
+.art { position: relative; height: var(--card-art-h); border-radius: 22px; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
+  background: radial-gradient(100% 90% at 35% 22%, color-mix(in srgb, var(--tint) 70%, white), var(--tint) 55%, var(--tint2)); box-shadow: var(--clay-tile); }
+.art:active { cursor: grabbing; }
+.floor { position: absolute; left: 50%; bottom: 12px; width: 62%; height: 16px; margin-left: -31%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(var(--shade) / .3), rgb(var(--shade) / 0)); transition: transform var(--dur), opacity var(--dur);
+  will-change: transform, opacity; }   /* the hover squash is a compositor change: a first hover never repaints the shelf */
+.pic { position: absolute; left: 50%; bottom: 16px; transform: translate(-50%, 0); transform-origin: 50% 100%; transition: translate var(--dur) var(--squash);
+  will-change: transform, opacity; }   /* its own small layer: the restock never repaints the shelf */
+.pic img { display: block; width: calc(var(--dw) * var(--art-k) * 1px); height: auto; max-height: calc(var(--card-art-h) - 26px); object-fit: contain;
+  filter: drop-shadow(0 5px 5px rgb(var(--shade) / .3)); pointer-events: none; }
+.art:hover .pic { translate: 0 -5px; }
+.art:hover .floor { transform: scaleX(.9); opacity: .8; }
+.tag { position: absolute; left: 10px; top: 10px; padding: 5px 10px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 600; letter-spacing: .02em;
+  color: var(--brown-700); background: linear-gradient(180deg, var(--cream-0), var(--cream-100)); box-shadow: var(--clay-s); text-shadow: var(--emboss); }
+.tag:empty { display: none; }
+.meta { display: flex; flex-direction: column; gap: 3px; padding: 12px 6px 4px; flex: 1; }
+.name { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.15; color: var(--text); text-shadow: var(--emboss); }
+.note { margin: 0; font-size: 13px; line-height: 1.35; color: var(--text-muted); }
+.buy { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 12px; }
+.price { margin: 0; padding: 6px 12px; border-radius: var(--radius-pill); background: var(--cream-200); box-shadow: var(--clay-well);
+  font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--brown-700); text-shadow: var(--emboss); }
+.add { display: inline-flex; align-items: center; gap: 5px; height: 44px; padding: 0 17px 0 13px; border-radius: var(--radius-pill);
+  font-size: 15px; font-weight: 700; letter-spacing: .02em; color: var(--on-accent); text-shadow: var(--emboss-on-colour);
+  background: linear-gradient(180deg, var(--coral-400), var(--accent) 55%, var(--coral-600)); box-shadow: var(--clay-m);
+  transition: transform var(--dur) var(--squash), box-shadow var(--dur), filter var(--dur-fast); touch-action: manipulation;
+  will-change: transform, filter; }   /* its own small layer: the hover brightening and the press repaint only the button */
+.add svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; filter: drop-shadow(0 1px 0 rgb(160 74 50 / .5)); }
+.add:hover { filter: brightness(1.04); }
+.add:active { transform: scale(.96); box-shadow: var(--clay-pressed); }
+
+.perks { list-style: none; display: flex; flex-wrap: wrap; gap: 12px 26px; margin: 26px 0 0; padding: 0; font-size: 14px; font-weight: 500; color: var(--text-muted); }
+.perks li { display: flex; align-items: center; gap: 10px; }
+.perk-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(180deg, var(--cream-0), var(--cream-100)); box-shadow: var(--clay-s); }
+.perk-ico svg { width: 17px; height: 17px; fill: none; stroke: var(--accent-text); stroke-width: 1.9; stroke-linejoin: round; stroke-linecap: round; }
+.credit { margin: 18px 0 0; font-size: 12.5px; color: rgb(118 60 49 / .7); }
+.credit a { display: inline-block; padding: 15px 2px; margin: -15px 0; }   /* a 44 px target in a line of small print */
+
+/* ---- 5. the basket panel: a big clay slab at the side on a desk, docked at the bottom on a phone (section 11) ---- */
+.basket { position: fixed; z-index: var(--z-basket); top: calc(var(--header-h) + 8px); bottom: 20px; right: max(var(--space-10), calc((100vw - var(--shop-max)) / 2 + var(--space-10)));
+  width: var(--basket-w); display: flex; flex-direction: column; padding: 16px 18px 16px; border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, var(--surface-hi), var(--surface)); box-shadow: 0 30px 50px -20px rgb(var(--shade) / .4), var(--clay-l); }
+.b-head { order: 1; display: flex; align-items: baseline; gap: 10px; padding: 2px 6px 0; }
+.b-head h2 { display: flex; align-items: baseline; gap: 10px; margin: 0; font-size: 23px; font-weight: 700; color: var(--heading); text-shadow: 0 -1px 0 rgb(255 226 210 / .8), 0 2px 0 var(--brown-800), 0 4px 6px rgb(var(--shade) / .25); }
+.b-count { text-shadow: none; padding: 3px 10px; border-radius: var(--radius-pill); background: var(--cream-200); box-shadow: var(--clay-well); font-size: 13px; font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.b-toggle { display: none; }
+.tray { order: 2; }
+.b-ship { order: 3; padding: 10px 6px 4px; }
+.b-lines { order: 4; flex: 1 1 auto; min-height: 0; overflow: auto; margin: 8px -6px 0; padding: 4px 8px; scrollbar-width: thin; }
+.b-foot { order: 5; padding-top: 10px; }
+/* the parts of the panel that change when something lands get their own small layers: a new count, total or list line
+   repaints that part alone, never the whole clay panel and its big soft shadows (at 3× pixel density that was a
+   whole frame of GPU raster) */
+.b-count, .b-ship, .b-lines, .empty-hint, .sum { will-change: transform; }
+
+.ship-text { margin: 0 0 8px; font-size: 13px; color: var(--text-muted); }
+.ship-text b { color: var(--text); font-weight: 700; }
+.ship-text .ok { display: inline-flex; align-items: center; gap: 5px; color: var(--success); font-weight: 600; }
+.ship-text .ok svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.ship-bar { position: relative; height: 12px; padding: 2px; border-radius: var(--radius-pill); background: var(--cream-200); box-shadow: var(--clay-well); }
+.ship-fill { position: absolute; inset: 2px; border-radius: inherit; transform-origin: 0 50%; transform: scaleX(0); will-change: transform;
+  background: linear-gradient(180deg, var(--coral-300), var(--coral-600)); box-shadow: inset 2px 2px 3px rgb(var(--light) / .5), inset -2px -2px 3px rgb(var(--shade) / .25); }
+.basket[data-fee="free"] .ship-fill { background: linear-gradient(180deg, #B9DDB0, var(--mint-500)); }
+.empty-hint { margin: 6px 0 0; text-align: center; font-size: 13.5px; color: var(--text-muted); }
+.basket:not([data-state="empty"]) .empty-hint { display: none; }
+
+/* ---- 6. the tray: the back of the clay basket under its magnet. The rig is 816 × 900 basket px, scaled by --k ---- */
+.tray { position: relative; flex: none; width: min(100%, calc((100dvh - var(--tray-reserve)) * 816 / 900)); aspect-ratio: 816 / 900; margin: 0 auto; }   /* never taller than the screen allows */
+.rig { position: absolute; left: 0; top: 0; width: 816px; height: 900px; transform-origin: 0 0; }
+.rig--back { transform: scale(var(--k, .42)); will-change: transform; }   /* the dip moves a layer, it does not repaint the panel */
+.rig-shadow { position: absolute; left: 70px; right: 40px; top: 800px; height: 100px; border-radius: 50%; transform: rotate(-9deg);
+  background: radial-gradient(closest-side, rgb(var(--shade) / .38), rgb(var(--shade) / 0)); }
+.basket-back, .basket-front { position: absolute; left: 0; top: 110px; width: 816px; height: 790px; pointer-events: none; }
+.drop-hint { position: absolute; left: 50%; bottom: -6px; z-index: 2; margin: 0; transform: translateX(-50%); padding: 8px 15px; border-radius: var(--radius-pill); white-space: nowrap;
+  font-size: 13.5px; font-weight: 700; color: var(--on-accent); text-shadow: var(--emboss-on-colour); background: linear-gradient(180deg, var(--coral-400), var(--coral-600));
+  box-shadow: var(--clay-m); opacity: 0; transition: opacity var(--dur-fast); pointer-events: none; }
+.drop-hint .dh-out { display: none; }
+.basket[data-over="add"] .drop-hint, .basket[data-over="out"] .drop-hint { opacity: 1; }
+.basket[data-over="out"] .drop-hint { background: linear-gradient(180deg, #E98C7C, #C9574A); }
+.basket[data-over="out"] .dh-add { display: none; }
+.basket[data-over="out"] .dh-out { display: inline; }
+
+/* the front of the basket (on the stage, over the pile): its front walls, the coin, the counter, the magnet */
+.rig--front { z-index: 2; pointer-events: none; will-change: transform; }
+.coin { position: absolute; left: 100px; top: 547px; width: 132px; height: 137px; perspective: 600px; }
+.coin img { width: 100%; height: 100%; transform: rotateY(24deg); filter: drop-shadow(-4px 6px 6px rgb(var(--shade) / .35)); }
+.counter { position: absolute; left: 0; top: 0; width: 220px; height: 150px; transform-origin: 0 0; }
+.counter__face { position: absolute; inset: 0; display: flex; align-items: stretch; gap: 5px; padding: 12px 8px; }
+.roller { position: relative; flex: 1; overflow: hidden; border-radius: 16px; background: var(--rc, #F6E6C6);
+  box-shadow: inset 4px 8px 10px -2px rgb(var(--light) / .6), inset -4px -12px 14px -6px rgb(var(--shade) / .35), 0 4px 6px rgb(var(--shade) / .25); }
+.roller--sign { --rc: #F1B999; flex: .78; }
+.roller--alt { --rc: #CDBCE0; }
+.roller::after { content: ''; position: absolute; inset: 0; pointer-events: none;   /* a cylinder: dark top and bottom, a lit band */
+  background: linear-gradient(180deg, rgb(var(--shade) / .4) 0%, rgb(var(--light) / 0) 30%, rgb(var(--light) / .22) 48%, rgb(var(--light) / 0) 64%, rgb(var(--shade) / .4) 100%); }
+.roller-dot { flex: none; align-self: flex-end; width: 12px; height: 12px; margin: 0 -1px 22px; border-radius: 50%; background: #C47A5E; box-shadow: inset 1px 2px 2px rgb(var(--light) / .5), 0 2px 2px rgb(var(--shade) / .3); }
+.roller__strip { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }
+.roller__cell { height: 126px; display: grid; place-items: center; font-weight: 700; font-size: 70px; color: var(--rd, #C47A5E); text-shadow: 0 -2px 0 rgb(var(--light) / .6), 0 3px 2px rgb(var(--shade) / .3); }
+.roller--alt .roller__cell { --rd: #8E6FA8; }
+.roller--sign .roller__cell { --rd: #FFF1E4; font-size: 66px; text-shadow: 0 3px 0 rgb(180 90 60 / .45); }
+.magnet { position: absolute; left: 421px; top: 5px; width: 276px; height: 306px; }
+.magnet__swing { position: absolute; inset: 0; transform-origin: 50% 40%; transform: rotate(25deg); will-change: transform; }
+.magnet__swing img { width: 100%; height: 100%; filter: drop-shadow(-6px 18px 16px rgb(var(--shade) / .35)); }
+.magnet__word { position: absolute; inset: 0; width: 100%; height: 100%; font-family: var(--font); font-weight: 600; font-size: 66px; letter-spacing: .06em; }
+.magnet__word-face { fill: #C25F4A; }
+.magnet__word-shade { fill: rgb(255 214 196 / .6); transform: translateY(3px); }
+.magnet__glow { position: absolute; top: 76%; width: 36%; height: 28%; border-radius: 50%; opacity: var(--pull, 0);
+  background: radial-gradient(closest-side, rgb(255 246 214 / .95), rgb(255 214 150 / .5) 45%, rgb(255 200 140 / 0)); mix-blend-mode: screen; filter: blur(2px); will-change: opacity; }
+.magnet__glow--l { left: 1%; } .magnet__glow--r { right: 1%; }
+
+/* ---- 7. the list, the sum, checkout ---- */
+.lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.line { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; column-gap: 10px; padding: 6px 6px 6px 6px; border-radius: 22px;
+  background: linear-gradient(180deg, var(--cream-0), var(--cream-100)); box-shadow: var(--clay-s); }
+.l-thumb { width: 44px; height: 44px; border-radius: 16px; display: grid; place-items: center; background: linear-gradient(180deg, var(--tint), var(--tint2)); box-shadow: var(--clay-tile); }
+.l-thumb img { max-width: 34px; max-height: 36px; width: auto; height: auto; }
+.l-text { min-width: 0; }
+.l-name { margin: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.l-price { margin: 1px 0 0; font-size: 12.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.stepper { display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: var(--radius-pill); background: var(--cream-200); box-shadow: var(--clay-well); }
+.stepper button { display: grid; place-items: center; width: 38px; height: 38px; padding: 0; border-radius: 50%; background: linear-gradient(180deg, var(--cream-0), var(--cream-100));
+  box-shadow: var(--clay-s); transition: transform var(--dur) var(--squash), box-shadow var(--dur); will-change: transform; }
+.stepper button:active { transform: scale(.94); box-shadow: var(--clay-pressed); }
+.stepper button.is-remove { color: #B9483B; }
+.stepper svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; }
+.stepper .qty { min-width: 20px; text-align: center; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.sum { display: grid; gap: 1px; margin: 0; padding: 0 6px 10px; }
+.sum-row { display: flex; align-items: baseline; justify-content: space-between; }
+.sum-row dt { font-size: 13.5px; font-weight: 500; color: var(--text-muted); }
+.sum-row dd { margin: 0; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text); }
+.sum-row--total { align-items: center; margin-top: 3px; }
+.sum-row--total dt { font-size: 15px; color: var(--text); }
+.sum-note { display: none; }   /* the closed phone dock's one-line summary of the delivery */
+/* delivery: the fee, or (from $25) the fee struck through and a mint clay "Free" */
+.sum-fee { display: inline-flex; align-items: baseline; gap: 6px; }
+.fee-was { display: none; font-weight: 500; color: var(--text-muted); }
+.basket[data-fee="free"] .fee-was { display: inline; }
+.basket[data-fee="free"] .fee-now { padding: 1px 9px; border-radius: var(--radius-pill); color: var(--success); background: var(--mint-100); box-shadow: var(--clay-s); }
+.odo { display: inline-flex; height: var(--odo-size); overflow: hidden; font: 700 var(--odo-size)/1 var(--font); color: var(--brown-700); font-variant-numeric: tabular-nums; text-shadow: var(--emboss); }
+.odo .col { display: inline-block; height: 1em; overflow: hidden; }
+.odo .col[hidden] { display: none; }   /* the leading digits an amount does not use (the columns are made once) */
+.odo .strip { display: flex; flex-direction: column; will-change: transform; }
+.odo .strip span, .odo .sym { display: block; height: 1em; line-height: 1; text-align: center; }
+.odo .col.d { width: .6em; }
+.checkout { position: relative; width: 100%; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 26px; overflow: hidden;
+  border-radius: var(--radius-pill); font-size: 21px; font-weight: 700; letter-spacing: .03em; color: #FFF4EA;
+  text-shadow: 0 -1px 0 rgb(var(--light) / .6), 0 2.5px 0 #D27C60, 0 3px 3px rgb(150 66 44 / .35);
+  background: linear-gradient(180deg, #F6B497 0%, #F0A285 45%, #E58F71 100%);
+  box-shadow: 0 18px 30px -12px rgb(var(--shade) / .5), inset 6px 6px 12px rgb(var(--light) / .45), inset -8px -9px 16px rgb(190 96 66 / .32);
+  transition: transform var(--dur) var(--squash), box-shadow var(--dur), filter var(--dur); will-change: transform, filter; }
+.checkout:hover { filter: brightness(1.03); }
+.checkout:active { transform: scale(.97); box-shadow: var(--clay-pressed); }
+.checkout[aria-disabled="true"] { cursor: not-allowed; color: var(--text-muted); text-shadow: var(--emboss); background: linear-gradient(180deg, var(--cream-100), var(--cream-300)); box-shadow: var(--clay-m); }
+.checkout[aria-disabled="true"]:active { transform: none; }
+.co-arrow { position: relative; z-index: 1; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; transition: transform var(--dur); }
+.checkout:not([aria-disabled="true"]):hover .co-arrow { transform: translateX(3px); }
+.co-label { position: relative; z-index: 1; }
+.co-bar { position: absolute; inset: 0; pointer-events: none; }
+.co-bar i { position: absolute; inset: 0; transform-origin: 0 50%; transform: scaleX(0); will-change: transform; background: linear-gradient(90deg, rgb(255 255 255 / 0), rgb(255 255 255 / .35)); }
+.fine { margin: 10px 0 0; text-align: center; font-size: 12px; color: var(--text-muted); }
+
+/* ---- 8. the stage: products in flight and in the pile, over everything; the basket's front between the two ---- */
+.stage { position: fixed; inset: 0; z-index: var(--z-stage); pointer-events: none; overflow: hidden; contain: strict; }
+.item { position: absolute; left: 0; top: 0; z-index: 3; will-change: transform; pointer-events: auto; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; transform-origin: 50% 50%; }
+.item img { display: block; width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(0 8px 8px rgb(var(--shade) / .3)); }
+.item.is-in { z-index: 1; }
+.item.is-in img { filter: drop-shadow(0 4px 4px rgb(var(--shade) / .35)); }
+.item.is-held { z-index: 4; cursor: grabbing; }
+.item.is-ghost { pointer-events: none; }
+.units { position: absolute; right: -4px; top: -6px; min-width: 26px; height: 24px; padding: 0 7px; display: grid; place-items: center; border-radius: var(--radius-pill);
+  font: 700 12.5px/1 var(--font); font-variant-numeric: tabular-nums; color: var(--on-accent); background: linear-gradient(180deg, var(--coral-400), var(--coral-600)); box-shadow: var(--clay-s); text-shadow: var(--emboss-on-colour); }
+.units:empty { display: none; }
+.units:not(:empty) { will-change: transform; }   /* it counter-rotates while its item moves */
+.ring { position: absolute; left: 0; top: 0; z-index: 0; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 3px solid var(--coral-400); opacity: 0; will-change: transform, opacity; }
+
+/* ---- 9. the receipt (after checkout) ---- */
+.done { order: 6; position: absolute; inset: 0; z-index: 3; display: flex; align-items: center; justify-content: center; padding: 22px; border-radius: inherit;
+  background: linear-gradient(180deg, var(--surface-hi), var(--surface)); outline: none;
+  will-change: opacity; }   /* its own layer: showing or hiding the receipt never repaints the panel under it */
+.done:not(.is-shown) { visibility: hidden; }   /* laid out while hidden: showing it is no layout, only a flip */
+.receipt { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 26px 22px 22px; border-radius: 30px;
+  background: linear-gradient(180deg, var(--cream-0), var(--cream-100)); box-shadow: var(--clay-l); }
+.done-check { will-change: transform; width: 76px; height: 76px; margin-bottom: 14px; fill: none; stroke-linecap: round; stroke-linejoin: round; border-radius: 50%; background: var(--mint-100); box-shadow: var(--clay-m); }
+.dc-ring { stroke: var(--success); stroke-width: 3; stroke-dasharray: 183; stroke-dashoffset: 183; opacity: .35; }
+.dc-tick { stroke: var(--success); stroke-width: 5; stroke-dasharray: 44; stroke-dashoffset: 44; }
+.done-eyebrow { margin: 0 0 6px; font-size: 12.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-text); }
+.done h2 { margin: 0; font-size: 30px; font-weight: 700; line-height: 1.05; color: var(--heading); text-wrap: balance;
+  text-shadow: 0 -1px 0 rgb(255 226 210 / .8), 0 2.5px 0 var(--brown-800), 0 6px 8px rgb(var(--shade) / .25); }
+.done-text { margin: 10px 0 0; max-width: 270px; font-size: 14px; line-height: 1.5; color: var(--text-muted); }
+.done-lines { list-style: none; width: 100%; margin: 16px 0 0; padding: 10px 14px; border-radius: 18px; background: var(--cream-200); box-shadow: var(--clay-well); }
+.done-lines:empty { display: none; }
+.done-lines li { display: flex; justify-content: space-between; font-size: 14px; line-height: 1.7; }
+.done-sum { width: 100%; display: grid; gap: 3px; margin: 12px 0 18px; padding: 12px 16px; border-radius: 18px;
+  background: linear-gradient(180deg, var(--cream-0), var(--cream-100)); box-shadow: var(--clay-s); }
+.done-sum div { display: flex; align-items: baseline; justify-content: space-between; }
+.done-sum dt { font-size: 13.5px; color: var(--text-muted); }
+.done-sum dd { margin: 0; font-size: 14.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text); }
+.done-sum s { margin-right: 4px; font-weight: 500; color: var(--text-muted); }
+.done-sum-total { margin-top: 4px; }
+.done-sum-total dt { font-size: 15px; font-weight: 600; color: var(--text); }
+.done-sum-total dd { font-size: 22px; font-weight: 700; color: var(--brown-700); }
+.again { height: 50px; padding: 0 24px; border-radius: var(--radius-pill); font-size: 15.5px; font-weight: 700; color: #8A532E; text-shadow: var(--emboss);
+  background: radial-gradient(90% 120% at 35% 20%, #F9E5AA, var(--butter-300) 65%, var(--butter-400)); box-shadow: var(--clay-m); transition: transform var(--dur) var(--squash), box-shadow var(--dur);
+  will-change: transform; }
+.again:active { transform: scale(.96); box-shadow: var(--clay-pressed); }
+
+/* the scrim behind the phone's basket sheet: tap it to close the sheet */
+.scrim { position: fixed; inset: 0; z-index: var(--z-scrim); background: rgb(var(--shade) / .28); }   /* over the header, under the open sheet */
+.scrim[hidden] { display: none; }
+
+/* ---- 10. the touch circle, for the video ---- */
+.touch { position: fixed; top: 0; left: 0; z-index: var(--z-touch); will-change: transform; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; pointer-events: none; opacity: 0;
+  border: 2px solid #fff; background: rgb(255 255 255 / .18); box-shadow: 0 0 0 1px rgb(0 0 0 / .35); transition: opacity .12s; }
+.touch.is-on { opacity: 1; }
+
+/* ---- 11. screens ----
+   The basket is in one of three places (js/util.js asks the same two questions):
+     panel   at the right of the shelf (desks, laptops, tablets on their side). Its art shrinks on short screens so the
+             totals and Checkout always fit (--tray-reserve), and the panel grows on wide screens
+     docked  at the bottom (phones and tablets held upright, under 1024 px): throws go down, the list folds into a sheet
+     strip   a narrow column at the right (phones on their side): throws go right, the list folds into a sheet */
+
+/* tablets on their side, small laptops: three columns, a narrower panel */
+@media (max-width: 1180px) and (min-width: 761px) {
+  :root { --basket-w: 330px; }
+  .shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .intro { grid-template-columns: 1fr; } .lede { margin-top: 10px; max-width: 460px; }
+}
+/* short screens: a tighter foot, so the basket art keeps more of the height */
+@media (max-height: 820px) and (min-width: 761px) {
+  :root { --basket-w: 350px; --card-art-h: 138px; --tray-reserve: 446px; }
+  .b-foot { padding-top: 6px; }
+  .checkout { height: 56px; font-size: 19px; }
+  .fine { display: none; }
+}
+/* wide screens: the content stops growing, the basket grows */
+@media (min-width: 1600px) { :root { --shop-max: 1480px; --basket-w: clamp(384px, 23vw, 500px); } }
+/* touch screens: every control at least 44 px */
+@media (max-width: 1180px), (pointer: coarse) {
+  .stepper button { width: 44px; height: 44px; }
+}
+
+/* narrow but not short: the aisles become a row of chips under the pill (nav.css), the header is taller */
+@media (max-width: 979px) and (min-height: 541px) { :root { --header-h: 140px; } }
+
+/* phones: a smaller header, two columns of cards */
+@media (max-width: 760px) {
+  :root { --header-h: 124px; --card-art-h: 136px; --art-k: .95; }   /* the pill and nav.css's row of aisle chips */
+  .site { padding: 10px var(--space-3) 0; }
+  .site-pill { height: 58px; gap: var(--space-3); padding: 0 8px 0 12px; }
+  .wordmark { font-size: 19px; }
+  .mark { width: 34px; height: 34px; }
+  .icon-btn { width: 42px; height: 42px; }
+  .bag-btn { width: 46px; height: 46px; }
+  .shop { padding: 0 var(--space-4); }
+  .intro { display: block; margin-bottom: 18px; }
+  h1 { font-size: 36px; }
+  .lede { margin-top: 10px; max-width: 340px; font-size: 14.5px; }
+  .shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .card article { padding: 8px; border-radius: 24px; }
+  .meta { padding: 10px 4px 2px; }
+  .name { font-size: 15.5px; }
+  .note { font-size: 12px; }
+  .buy { flex-wrap: wrap; }
+  .price { padding: 5px 10px; font-size: 15px; }
+  .add { height: 44px; padding: 0 14px 0 11px; }
+  .perks { flex-direction: column; gap: 8px; }
+}
+
+/* the folded basket (docked and strip): a bar on top, the toggle that opens the list as a sheet, two-line totals */
+@media (max-width: 1023px) and (orientation: portrait), (orientation: landscape) and (max-height: 540px) {
+  :root { --odo-size: 22px; }
+  .b-head { align-items: center; padding: 0 2px 2px; min-height: 44px; }
+  .b-head h2 { font-size: 19px; white-space: nowrap; }
+  .b-toggle { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; height: 44px; padding: 0 10px 0 14px; border-radius: var(--radius-pill);
+    font-size: 13.5px; font-weight: 600; color: var(--text-muted); background: linear-gradient(180deg, var(--cream-0), var(--cream-100)); box-shadow: var(--clay-s); }
+  .b-toggle svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform var(--dur); }
+  .b-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .b-ship { order: 0; position: absolute; left: 30px; right: 30px; top: 4px; padding: 0; }
+  .ship-text { display: none; }
+  .ship-bar { height: 7px; padding: 1px; }
+  .ship-fill { inset: 1px; }
+  /* folded, the list stays laid out (invisible, out of the flow, at the width it opens to), so opening the sheet only
+     moves it into the flow: its rows are not styled and laid out all at once in that frame */
+  .b-lines { position: absolute; left: 8px; right: 8px; top: 0; max-height: 50dvh; visibility: hidden; pointer-events: none; }
+  .basket.is-open .b-lines { position: static; max-height: none; visibility: visible; pointer-events: auto; }
+  .basket.is-open .b-head { cursor: grab; touch-action: none; }
+  .sum { gap: 0; padding: 0 0 0 4px; }
+  .sum-row { justify-content: flex-start; gap: 6px; }
+  .sum-row dt, .sum-row dd { font-size: 12px; }
+  .basket[data-fee="free"] .fee-now { padding: 0 7px; }
+  .sum-row--total { flex-direction: column; align-items: flex-start; gap: 3px; margin-top: 2px; }
+  .sum-row--total dt { font-size: 12.5px; color: var(--text-muted); white-space: nowrap; }
+  /* closed, the totals keep two lines: "Total · +$3.99 delivery" over the rolling total */
+  .basket:not(.is-open) .sum-row:not(.sum-row--total) { display: none; }
+  .basket:not(.is-open) .sum-row--total { margin-top: 0; }
+  .basket:not(.is-open) .sum-note { display: inline; }
+  .fine { display: none; }
+  .done { padding: 12px; }
+  .receipt { padding: 16px; }
+  .done-check { width: 52px; height: 52px; margin-bottom: 8px; }
+  .done h2 { font-size: 24px; }
+  .done-sum { margin: 10px 0 14px; }
+}
+
+/* docked: the basket at the bottom of the screen (throw downward); open, it is a sheet over the page with the list */
+@media (max-width: 1023px) and (orientation: portrait) {
+  :root { --dock-h: 340px; }   /* js/sheet.js keeps it to the dock's real height */
+  .pantry { margin-right: 0; padding: 12px 0 calc(var(--dock-h) + 24px + env(safe-area-inset-bottom)); }
+  .basket { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 86dvh; padding: 10px 14px calc(12px + env(safe-area-inset-bottom)); border-radius: 30px; }
+  .b-lines { order: 2; margin: 0 -6px 8px; }
+  .basket.is-open, .basket[data-state="done"] { z-index: var(--z-sheet); top: 12px; max-height: none; }
+  /* a phone keeps its 214 px basket; a tablet's is bigger; a short phone's smaller, so the dock never takes the screen */
+  .tray { order: 3; width: min(max(214px, 30vw), 300px, max(150px, calc((50dvh - 128px) * 816 / 900))); margin: -10px auto 0; }
+  .b-foot { order: 4; display: flex; align-items: center; gap: var(--space-3); padding-top: 6px; }
+  .checkout { flex: 1; height: 56px; padding: 0 22px; font-size: 19px; }
+}
+@media (max-width: 359px) { .b-head h2 { font-size: 17px; gap: 6px; } .b-count { padding: 3px 8px; } }
+
+/* strip: a phone on its side. The basket is a narrow column at the right, the header ends where it begins; open, it
+   takes the screen but the edge: the basket at the left (the same size, so the pile stays as it is), the list beside it */
+@media (orientation: landscape) and (max-height: 540px) {
+  :root { --card-art-h: 120px; }
+  .site { padding-right: calc(var(--strip-w) + 20px); }
+  .shop { padding: 0 var(--space-4); }
+  .pantry { margin-right: calc(var(--strip-w) + 12px); padding-top: 8px; }
+  .basket { top: 8px; bottom: 8px; right: 8px; width: var(--strip-w); padding: 10px 12px 10px; border-radius: 28px; }
+  .b-head h2 { font-size: 17px; }
+  .b-head .b-count, .b-toggle-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .b-toggle { padding: 0 13px; }
+  .tray { width: min(100%, calc((100dvh - 186px) * 816 / 900)); }
+  .b-foot { display: grid; gap: 6px; padding-top: 4px; }
+  .checkout { height: 48px; padding: 0 18px; font-size: 17px; }
+  .basket.is-open, .basket[data-state="done"] { z-index: var(--z-sheet); left: 8px; width: auto; display: grid; grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto; column-gap: 18px; }
+  .basket.is-open .b-head, .basket[data-state="done"] .b-head { grid-column: 1 / -1; }
+  .basket.is-open .tray, .basket[data-state="done"] .tray { grid-column: 1; grid-row: 2 / 4; align-self: center; }
+  .basket.is-open .b-lines { grid-column: 2; grid-row: 2; margin: 0; }
+  .basket.is-open .b-foot, .basket[data-state="done"] .b-foot { grid-column: 2; grid-row: 3; display: flex; align-items: center; }
+  .basket.is-open .b-head .b-count { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
+}
+
+/* ---- 12. reduced motion: items still go into the basket, without throws, bounces or rolling numbers (js/) ---- */
+@media (prefers-reduced-motion: reduce) {
+  .pic, .floor, .add, .checkout, .co-arrow, .b-toggle svg, .links a, .stepper button, .icon-btn, .bag-btn, .again { transition: none; }
+}

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F7EBD3">
+  <title>ClayMart Market</title>
+  <meta name="description" content="A clay grocery market with a magnetic basket: grab anything, throw it, and the magnet pulls it in.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="nav.css">
+</head>
+<body>
+  <a class="skip" href="#shelf">Skip to the products</a>
+
+  <!-- the header: one long clay pill — the brand, the aisles, search, account and the basket (behaviour: nav.js) -->
+  <header class="site">
+    <div class="site-pill">
+      <a class="brand" href="./" aria-label="ClayMart, the whole market, back to top">
+        <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+          <defs><linearGradient id="markClay" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6B49A"/><stop offset="1" stop-color="#E48C70"/></linearGradient></defs>
+          <path d="M36 12 A15 15 0 1 0 36 36" fill="none" stroke="#C9705A" stroke-width="11" stroke-linecap="round" transform="translate(0 1.5)" opacity=".35"/>
+          <path d="M36 12 A15 15 0 1 0 36 36" fill="none" stroke="url(#markClay)" stroke-width="11" stroke-linecap="round"/>
+          <path d="M33 10.4 A15 15 0 0 0 23 9.4" fill="none" stroke="#FFE3D4" stroke-width="2.4" stroke-linecap="round" opacity=".8"/>
+          <rect x="33.5" y="6.6" width="8" height="10.5" rx="3.6" fill="#F7EEE4" transform="rotate(-38 37.5 11.8)"/>
+          <rect x="33.5" y="30.9" width="8" height="10.5" rx="3.6" fill="#F7EEE4" transform="rotate(38 37.5 36.2)"/>
+        </svg>
+        <span class="wordmark">CLAYMART</span>
+      </a>
+      <!-- the aisles: one tab stop, ← → between them; the chosen one is in the URL (#dairy) -->
+      <nav class="links" aria-label="Aisles">
+        <a href="./" data-aisle="market" aria-current="page">Market</a><a href="#fruitveg" data-aisle="fruitveg" tabindex="-1">Fruit &amp; veg</a><a href="#dairy" data-aisle="dairy" tabindex="-1">Dairy</a><a href="#bakery" data-aisle="bakery" tabindex="-1">Bakery</a>
+      </nav>
+      <div class="tools">
+        <button class="icon-btn nav-search-btn" type="button" aria-label="Search products" aria-expanded="false" aria-controls="nav-search" aria-keyshortcuts="Meta+K Control+K /"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></button>
+        <button class="icon-btn nav-account-btn" type="button" aria-label="Your account" aria-haspopup="dialog" aria-expanded="false" aria-controls="nav-account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.4-3.6 4.2-5.2 7.5-5.2s6.1 1.6 7.5 5.2"/></svg></button>
+        <button class="bag-btn" type="button" aria-label="Basket, empty">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 7h3.2l2.6 12.2a2 2 0 0 0 2 1.6h10.6a2 2 0 0 0 2-1.5L26.8 11H8.6"/><circle cx="12.6" cy="25.4" r="1.6"/><circle cx="21.8" cy="25.4" r="1.6"/></svg>
+          <span class="bag-count is-zero" aria-hidden="true">0</span>
+        </button>
+      </div>
+
+      <!-- search: a clay well over the pill, filtering the shelf as you type (⌘K, Ctrl+K or /; Esc closes and clears) -->
+      <div class="nav-search" id="nav-search" role="search" hidden>
+        <svg class="nav-search-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+        <input id="nav-q" type="search" placeholder="Search the market" aria-label="Search products" autocomplete="off" spellcheck="false" enterkeyhint="search">
+        <span class="nav-count" aria-hidden="true"></span>
+        <kbd class="nav-kbd" aria-hidden="true">Esc</kbd>
+        <button class="nav-x nav-search-close" type="button" aria-label="Close search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
+      </div>
+
+      <!-- the account: only what this device knows, the orders checked out here -->
+      <div class="nav-account" id="nav-account" role="dialog" aria-modal="true" aria-labelledby="nav-account-title" hidden>
+        <div class="na-head">
+          <i class="na-grip" aria-hidden="true"></i>
+          <h2 id="nav-account-title">Your account</h2>
+          <button class="nav-x na-close" type="button" aria-label="Close your account"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
+        </div>
+        <p class="na-note">Orders checked out in this browser.</p>
+        <ol class="na-orders" aria-label="Past orders"></ol>
+        <p class="na-empty">No orders yet. Check out a basket and it will wait here, ready to reorder.</p>
+        <button class="na-clear" type="button">Clear order history</button>
+      </div>
+    </div>
+    <div class="nav-scrim" hidden></div>
+    <p class="sr-only" id="nav-say" aria-live="polite" aria-atomic="true"></p>
+
+    <template id="nav-order-tpl">
+      <li class="ao">
+        <div class="ao-head"><span class="ao-no"></span><time class="ao-when"></time></div>
+        <p class="ao-what"></p>
+        <div class="ao-foot">
+          <p class="ao-sum"><b class="ao-total"></b><span><span class="ao-count"></span> · <span class="ao-fee"></span></span></p>
+          <button class="ao-again" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg><span>Reorder</span></button>
+        </div>
+      </li>
+    </template>
+    <!-- shown in the shelf's place when the aisle and the search leave nothing -->
+    <template id="nav-empty-tpl">
+      <div class="nav-empty" role="status" hidden>
+        <svg class="ne-ico" viewBox="0 0 64 64" aria-hidden="true"><circle cx="28" cy="28" r="16"/><path d="M40 40l12 12"/><path d="M22 28h12"/></svg>
+        <p class="ne-title"><span class="ne-q">No match for “<span class="ne-query"></span>”</span><span class="ne-a">Nothing here yet</span> <span class="ne-where"></span></p>
+        <p class="ne-text">Try another word, or see everything again.</p>
+        <button class="ne-clear" type="button">Clear search</button>
+      </div>
+    </template>
+  </header>
+
+  <main class="shop">
+    <!-- the section: its words, then the shelf -->
+    <section class="pantry" aria-labelledby="title">
+      <div class="intro">
+        <p class="eyebrow">The fresh market <span aria-hidden="true">·</span> picked this morning</p>
+        <h1 id="title"><span class="t1">Fill your basket.</span> <span class="t2">Feel the weight.</span></h1>
+        <p class="lede">Grab anything off the shelf and throw it — the magnet pulls it into your basket. Changed your mind? Fling it back out.</p>
+      </div>
+      <h2 class="sr-only">Products</h2>
+      <ul class="shelf" id="shelf" tabindex="-1"></ul>
+      <ul class="perks" aria-label="Why ClayMart">
+        <li><i class="perk-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10.2A4.8 4.8 0 0 1 12 7a4.8 4.8 0 0 1 7 3.8C19 16.6 12 21 12 21z"/></svg></i>Picked this morning</li>
+        <li><i class="perk-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7.5l8-4 8 4v9l-8 4-8-4z"/><path d="M4 7.5l8 4 8-4M12 11.5v9"/></svg></i>Paper bags only</li>
+        <li><i class="perk-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg></i>Free delivery over $25</li>
+      </ul>
+      <p class="credit">Product images generated with Google Gemini · built by Code with Ulvi · <a href="https://domvybe.com">domvybe.com</a></p>
+    </section>
+
+    <!-- ============================== THE COMPONENT ==============================
+         The basket: a clay basket under a magnet. Anything thrown, dropped or added comes near, gets pulled in and lands
+         in a real pile (physics.js). The list under it is the same basket in words, for keyboards and screen readers. -->
+    <aside class="basket" aria-labelledby="basket-title" data-state="empty">
+      <div class="b-head">
+        <h2 id="basket-title">Your basket <span class="b-count"><span class="b-count-n">0</span> <span class="b-count-w">items</span></span></h2>
+        <button class="b-toggle" type="button" aria-expanded="false" aria-controls="lines">
+          <span class="b-toggle-text">Details</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+        </button>
+      </div>
+
+      <!-- the tray: the back of the clay basket (its front, the coin, the counter and the magnet are drawn over the pile,
+           on the stage) -->
+      <div class="tray" aria-hidden="true">
+        <div class="rig rig--back">
+          <i class="rig-shadow"></i>
+          <img class="basket-back" src="img/basket-back.webp" width="816" height="790" alt="" draggable="false">
+        </div>
+        <p class="drop-hint"><span class="dh-add">Let go to add</span><span class="dh-out">Let go to remove</span></p>
+      </div>
+
+      <div class="b-ship" aria-hidden="true">
+        <p class="ship-text">Free delivery from <b>$25.00</b></p>
+        <div class="ship-bar"><i class="ship-fill"></i></div>
+      </div>
+
+      <div class="b-lines" id="lines">
+        <ul class="lines" aria-label="Items in your basket"></ul>
+        <p class="empty-hint">Throw something in — or press <b>Add</b>.</p>
+      </div>
+
+      <div class="b-foot">
+        <dl class="sum">
+          <div class="sum-row"><dt>Subtotal</dt><dd class="sum-sub">$0.00</dd></div>
+          <div class="sum-row sum-row--fee"><dt>Delivery</dt><dd class="sum-fee"><s class="fee-was">$3.99</s><span class="fee-now">—</span></dd></div>
+          <div class="sum-row sum-row--total"><dt>Total<span class="sum-note"></span></dt><dd><span class="odo" aria-hidden="true"></span><span class="sr-only sum-text">$0.00</span></dd></div>
+        </dl>
+        <button class="checkout" type="button" aria-disabled="true">
+          <span class="co-label">Checkout</span>
+          <span class="co-bar" aria-hidden="true"><i></i></span>
+          <svg class="co-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <p class="fine">Taxes included <span aria-hidden="true">·</span> Free returns on anything</p>
+      </div>
+
+      <!-- after checkout: the order, as a clay receipt -->
+      <div class="done" tabindex="-1" aria-labelledby="done-title">
+        <div class="receipt">
+          <svg class="done-check" viewBox="0 0 64 64" aria-hidden="true"><circle class="dc-ring" cx="32" cy="32" r="29"/><path class="dc-tick" d="M19 33.5l9 9 17-19"/></svg>
+          <p class="done-eyebrow">Order <span class="done-no">CM-24817</span></p>
+          <h2 id="done-title">Thanks! It’s on its way.</h2>
+          <p class="done-text">Packed this afternoon, at your door <b>tomorrow morning</b>.</p>
+          <ul class="done-lines"></ul>
+          <dl class="done-sum">
+            <div><dt>Subtotal</dt><dd class="done-sub">$0.00</dd></div>
+            <div><dt>Delivery</dt><dd class="done-fee">$0.00</dd></div>
+            <div class="done-sum-total"><dt>Total</dt><dd class="done-total">$0.00</dd></div>
+          </dl>
+          <button class="again" type="button">Start a new basket</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <div class="scrim" hidden></div>
+
+  <!-- the stage: a layer over the whole page where products fly, fall and pile up, with the basket's front over the
+       pile (js/items.js and js/basket.js draw them) -->
+  <div class="stage" aria-hidden="true">
+    <div class="rig rig--front">
+      <img class="basket-front" src="img/basket-front.webp" width="816" height="790" alt="" draggable="false">
+      <div class="coin"><img src="img/coin.webp" width="385" height="400" alt="" draggable="false"></div>
+      <div class="counter"><div class="counter__face"></div></div>
+      <div class="magnet">
+        <div class="magnet__swing">
+          <img src="img/magnet.webp" width="632" height="700" alt="" draggable="false">
+          <svg class="magnet__word" viewBox="0 0 632 700"><defs><path id="magArc" d="M96 318 A220 220 0 0 1 536 318"/></defs>
+            <text class="magnet__word-shade"><textPath href="#magArc" startOffset="50%" text-anchor="middle">magnetic</textPath></text>
+            <text class="magnet__word-face"><textPath href="#magArc" startOffset="50%" text-anchor="middle">magnetic</textPath></text>
+          </svg>
+          <i class="magnet__glow magnet__glow--l"></i><i class="magnet__glow magnet__glow--r"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="sr-only" aria-live="polite" aria-atomic="true" id="say"></p>
+  <div class="touch" aria-hidden="true"></div>
+
+  <!-- one product on the shelf -->
+  <template id="card">
+    <li class="card">
+      <article>
+        <div class="art"><i class="floor"></i><span class="pic"><img alt="" draggable="false"></span><span class="tag"></span></div>
+        <div class="meta">
+          <h3 class="name"></h3>
+          <p class="note"></p>
+          <div class="buy">
+            <p class="price"></p>
+            <button class="add" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add</span></button>
+          </div>
+        </div>
+      </article>
+    </li>
+  </template>
+
+  <script type="module" src="js/main.js"></script>
+  <script type="module" src="nav.js"></script>
+</body>
+</html>
